@@ -400,13 +400,39 @@ With a prefix ARG, allow editing."
     (format "'%s'" (s-replace "'" "'\"'\"'" s))))
 
 (defun python-pytest--get-buffer ()
-  "Get a create a suitable compilation buffer."
+  "Get or create a pytest buffer."
   (if (eq major-mode 'python-pytest-mode)
       (current-buffer)  ;; re-use buffer
-    (let ((name python-pytest-buffer-name))
-      (when python-pytest-project-name-in-buffer-name
-        (setq name (format "%s<%s>" name (python-pytest--project-name))))
-      (get-buffer-create name))))
+    (get-buffer-create (python-pytest--get-buffer-name))))
+
+(defun python-pytest--get-buffer-name ()
+  "Get a suitable pytest buffer name."
+  (let ((name python-pytest-buffer-name))
+    (if python-pytest-project-name-in-buffer-name
+        (format "%s<%s>" name (python-pytest--project-name))
+      name)))
+
+(defun python-pytest--send-pdb-breakpoint-command (pdb-command)
+  "Send a breakpoint related PDB-COMMAND for the the current line."
+  (unless (eq major-mode 'python-mode)
+    (user-error "Not in python mode"))
+  (-if-let* ((process (get-buffer-process
+                       (python-pytest--get-buffer-name)))
+             (command (format "%s %s:%d\n" pdb-command
+                              (buffer-file-name)
+                              (line-number-at-pos))))
+      (comint-send-string process command)
+    (user-error "No pytest process is running")))
+
+(defun python-pytest-set-pdb-breakpoint ()
+  "Set a new PDB breakpoint at the current line."
+  (interactive)
+  (python-pytest--send-pdb-breakpoint-command "break"))
+
+(defun python-pytest-clear-pdb-breakpoint ()
+  "Clear the PDB breakpoint at the current line."
+  (interactive)
+  (python-pytest--send-pdb-breakpoint-command "clear"))
 
 (defun python-pytest--process-sentinel (proc _state)
   "Process sentinel helper to run hooks after PROC finishes."

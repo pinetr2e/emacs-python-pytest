@@ -194,6 +194,12 @@ the available commands are:
 all of these are available via the popup menu,
 but can also be executed directly (or bound to a key).
 
+the basic PDB support commands are:
+
+- ``python-pytest-set-pdb-breakpoint``
+- ``python-pytest-clear-pdb-breakpoint``
+
+
 
 heuristics
 ==========
