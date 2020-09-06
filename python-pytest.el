@@ -423,11 +423,13 @@ With a prefix ARG, allow editing."
       (comint-send-string process command)
     (user-error "No pytest process is running")))
 
+;;;###autoload
 (defun python-pytest-set-pdb-breakpoint ()
   "Set a new PDB breakpoint at the current line."
   (interactive)
   (python-pytest--send-pdb-breakpoint-command "break"))
 
+;;;###autoload
 (defun python-pytest-clear-pdb-breakpoint ()
   "Clear the PDB breakpoint at the current line."
   (interactive)
